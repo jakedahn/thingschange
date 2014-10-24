@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"log"
-
 	"github.com/streadway/amqp"
+	"log"
 )
 
 func failOnError(err error, msg string) {
@@ -15,7 +15,16 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	var (
+		rabbit_host = flag.String("rabbit_host", "3.3.3.3", "Specify the rabbit hostname")
+		rabbit_user = flag.String("rabbit_user", "guest", "Specify the rabbit username")
+		rabbit_pass = flag.String("rabbit_pass", "guest", "Specify the rabbit password")
+	)
+
+	flag.Parse()
+
+	var connection_string = fmt.Sprintf("amqp://%s:%s@%s:5672/", *rabbit_user, *rabbit_pass, *rabbit_host)
+	conn, err := amqp.Dial(connection_string)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -33,21 +42,14 @@ func main() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	err = ch.Qos(
-		3,     // prefetch count
-		0,     // prefetch size
-		false, // global
-	)
-	failOnError(err, "Failed to set QoS")
-
 	msgs, err := ch.Consume(
-		q.Name, // queue
-		"",     // consumer
-		false,  // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
+		q.Name,   // queue
+		"worker", // consumer
+		false,    // auto-ack
+		false,    // exclusive
+		false,    // no-local
+		false,    // no-wait
+		nil,      // args
 	)
 	failOnError(err, "Failed to register a consumer")
 

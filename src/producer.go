@@ -19,16 +19,16 @@ func failOnError(err error, msg string) {
 func main() {
 
 	var (
-		rabbit_host = flag.String("rabit_host", "3.3.3.3", "Specify the rabbit hostname")
-		rabbit_user = flag.String("rabit_user", "guest", "Specify the rabbit username")
-		rabbit_pass = flag.String("rabit_pass", "guest", "Specify the rabbit password")
+		rabbit_host = flag.String("rabbit_host", "3.3.3.3", "Specify the rabbit hostname")
+		rabbit_user = flag.String("rabbit_user", "guest", "Specify the rabbit username")
+		rabbit_pass = flag.String("rabbit_pass", "guest", "Specify the rabbit password")
 	)
 
 	flag.Parse()
 
-	var connection_string = fmt.Sprintf("amqp://%v:%v@%v:5672/", rabbit_host, rabbit_user, rabbit_pass)
-	fmt.Println(connection_string)
+	var connection_string = fmt.Sprintf("amqp://%s:%s@%s:5672/", *rabbit_user, *rabbit_pass, *rabbit_host)
 	conn, err := amqp.Dial(connection_string)
+
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
