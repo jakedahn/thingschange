@@ -1,22 +1,20 @@
 package models
 
-import (
-	"fmt"
-	"sync"
-)
+type CheckList struct {
+	Collection []Check `json:"results"`
+}
 
 type Check struct {
-	id         string
-	url        string
-	md5        string
-	content    string
-	created_at int64
-	updated_at int64
+	Id         string `json:"id"`
+	Url        string `json:"url"`
+	Md5        string `json:"md5"`
+	Created_at int64  `json:"created_at"`
+	Updated_at int64  `json:"updated_at"`
 }
 
 // has the page been updated?
 func (self *Check) Changed(md5 string) bool {
-	if self.md5 != md5 {
+	if self.Md5 != md5 {
 		return true
 	}
 	return false
