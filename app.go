@@ -18,7 +18,7 @@ func SetupRoutes() *pat.Router {
 
 	r.Post("/api/v0/check", handlers.V0PostCheck)
 
-	r.Get("/api/v0/checks", handlers.V0GetLists)
+	r.Get("/api/v0/checks", handlers.V0GetCheckList)
 	http.Handle("/", r)
 
 	return r
