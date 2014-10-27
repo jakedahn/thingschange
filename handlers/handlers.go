@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/jakedahn/thingschange/models"
 )
@@ -45,7 +46,10 @@ func V0PostCheck(w http.ResponseWriter, req *http.Request) {
 	}
 
 	check := models.Check{
-		Url: check_url,
+		Owner:      api_key,
+		Url:        check_url,
+		Created_at: time.Now().UnixNano(),
+		Updated_at: time.Now().UnixNano(),
 	}
 
 	check.Save()
