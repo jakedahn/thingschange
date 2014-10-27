@@ -10,13 +10,13 @@ import (
 	// "github.com/gorilla/mux"
 	"github.com/gorilla/pat"
 
-	"github.com/jakedahn/thingschange/api"
+	"github.com/jakedahn/thingschange/handlers"
 )
 
 func SetupRoutes() *pat.Router {
 	r := pat.New()
 
-	r.Get("/api/v0/checks", api.V0GetLists)
+	r.Get("/api/v0/checks", handlers.V0GetLists)
 	http.Handle("/", r)
 
 	return r
