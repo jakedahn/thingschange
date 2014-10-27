@@ -1,10 +1,12 @@
-package rabbit
+package producer
 
 import (
 	"flag"
 	"fmt"
 	"github.com/streadway/amqp"
 	"log"
+	"os"
+	"strings"
 )
 
 func failOnError(err error, msg string) {
@@ -15,6 +17,7 @@ func failOnError(err error, msg string) {
 }
 
 func main() {
+
 	var (
 		rabbit_host = flag.String("rabbit_host", "3.3.3.3", "Specify the rabbit hostname")
 		rabbit_user = flag.String("rabbit_user", "guest", "Specify the rabbit username")
@@ -25,6 +28,7 @@ func main() {
 
 	var connection_string = fmt.Sprintf("amqp://%s:%s@%s:5672/", *rabbit_user, *rabbit_pass, *rabbit_host)
 	conn, err := amqp.Dial(connection_string)
+
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
@@ -32,36 +36,26 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
-		"task_queue", // name
-		true,         // durable
-		false,        // delete when unused
-		false,        // exclusive
-		false,        // no-wait
-		nil,          // arguments
-	)
-	failOnError(err, "Failed to declare a queue")
+	body := bodyFrom(os.Args)
+	err = ch.Publish(
+		"",           // exchange
+		"task_queue", // routing key
+		false,        // mandatory
+		false,        // immediate
+		amqp.Publishing{
+			DeliveryMode: amqp.Persistent,
+			ContentType:  "text/plain",
+			Body:         []byte(body),
+		})
+	failOnError(err, "Failed to publish a message")
+}
 
-	msgs, err := ch.Consume(
-		q.Name,   // queue
-		"worker", // consumer
-		false,    // auto-ack
-		false,    // exclusive
-		false,    // no-local
-		false,    // no-wait
-		nil,      // args
-	)
-	failOnError(err, "Failed to register a consumer")
-
-	forever := make(chan bool)
-
-	go func() {
-		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
-			d.Ack(false)
-		}
-	}()
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+func bodyFrom(args []string) string {
+	var s string
+	if (len(args) < 2) || os.Args[1] == "" {
+		s = "hello"
+	} else {
+		s = strings.Join(args[1:], " ")
+	}
+	return s
 }
