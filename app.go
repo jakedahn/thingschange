@@ -16,6 +16,8 @@ import (
 func SetupRoutes() *pat.Router {
 	r := pat.New()
 
+	r.Post("/api/v0/check", handlers.V0PostCheck)
+
 	r.Get("/api/v0/checks", handlers.V0GetLists)
 	http.Handle("/", r)
 
