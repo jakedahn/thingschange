@@ -8,8 +8,8 @@ type Check struct {
 	Id         string `json:"id"`
 	Url        string `json:"url"`
 	Md5        string `json:"md5"`
-	Created_at int64  `json:"created_at"`
-	Updated_at int64  `json:"updated_at"`
+	Created_at int    `json:"created_at"`
+	Updated_at int    `json:"updated_at"`
 }
 
 // has the page been updated?
